@@ -600,7 +600,7 @@ int __start (void) { return 0; }
 int foo (void) { return 1; }
 int (*fp) (void) __attribute__ ((section (".init_array"))) = foo;
 EOF
-if AC_TRY_COMMAND([${CC} $CFLAGS $CPPFLAGS -c -o conftest conftest.c
+if AC_TRY_COMMAND([${CC} $CFLAGS $CPPFLAGS -fno-lto -c -o conftest conftest.c
 							1>&AS_MESSAGE_LOG_FD])
 then
   if ${READELF} -S conftest | grep -e INIT_ARRAY > /dev/null; then

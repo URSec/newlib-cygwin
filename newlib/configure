@@ -12642,7 +12642,7 @@ int __start (void) { return 0; }
 int foo (void) { return 1; }
 int (*fp) (void) __attribute__ ((section (".init_array"))) = foo;
 EOF
-if { ac_try='${CC} $CFLAGS $CPPFLAGS -c -o conftest conftest.c
+if { ac_try='${CC} $CFLAGS $CPPFLAGS -fno-lto -c -o conftest conftest.c
 							1>&5'
   { { eval echo "\"\$as_me\":${as_lineno-$LINENO}: \"$ac_try\""; } >&5
   (eval $ac_try) 2>&5
