@@ -110,7 +110,7 @@ remap_handle (int fh)
   return fh - FILE_HANDLE_OFFSET;
 }
 
-void
+void __attribute__((weak))
 initialise_monitor_handles (void)
 {
   int i;
@@ -304,7 +304,7 @@ _swilseek (int file, off_t ptr, int dir)
   return res == 0 ? ptr : -1;
 }
 
-off_t
+off_t __attribute__((weak))
 _lseek (int file, off_t ptr, int dir)
 {
   return wrap (_swilseek (file, ptr, dir));
@@ -413,7 +413,7 @@ _swiopen (const char * path, int flags)
   return fh >= 0 ? fh + FILE_HANDLE_OFFSET : error (fh);
 }
 
-int
+int __attribute__((weak))
 _open (const char * path, int flags, ...)
 {
   return wrap (_swiopen (path, flags));
@@ -437,7 +437,7 @@ _swiclose (int file)
 #endif
 }
 
-int
+int __attribute__((weak))
 _close (int file)
 {
   return wrap (_swiclose (file));
@@ -479,7 +479,7 @@ else
   __builtin_unreachable();
 }
 
-int
+int __attribute__((weak))
 _kill (int pid, int sig)
 {
   if (sig == SIGABRT)
@@ -488,7 +488,7 @@ _kill (int pid, int sig)
     _kill_shared (pid, sig, ADP_Stopped_ApplicationExit);
 }
 
-void
+void __attribute__((weak))
 _exit (int status)
 {
   /* The same SWI is used for both _exit and _kill.
@@ -499,7 +499,7 @@ _exit (int status)
   _kill_shared (-1, status, ADP_Stopped_ApplicationExit);
 }
 
-pid_t
+pid_t __attribute__((weak))
 _getpid (void)
 {
   return (pid_t)1;
@@ -579,7 +579,7 @@ _link (const char *__path1 __attribute__ ((unused)), const char *__path2 __attri
   return -1;
 }
 
-int
+int __attribute__((weak))
 _unlink (const char *path)
 {
 #ifdef ARM_RDI_MONITOR
@@ -629,7 +629,7 @@ _gettimeofday (struct timeval * tp, void * tzvp)
 }
 
 /* Return a clock that ticks at 100Hz.  */
-clock_t
+clock_t __attribute__((weak))
 _times (struct tms * tp)
 {
   clock_t timeval;
@@ -654,7 +654,7 @@ _times (struct tms * tp)
 };
 
 
-int
+int __attribute__((weak))
 _isatty (int fd)
 {
 #ifdef ARM_RDI_MONITOR
