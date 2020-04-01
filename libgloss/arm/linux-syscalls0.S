@@ -102,7 +102,7 @@ SYSCALL0(vfork)
 SYSCALL4(wait4)
 SYSCALL3(write)
 
-#define ALIAS(name) .GLOBAL name; SET name, _ ## name
+#define ALIAS(name) .global name; SET name, _ ## name
 
 ALIAS(alarm)
 ALIAS(chdir)

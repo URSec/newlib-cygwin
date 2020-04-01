@@ -26,10 +26,9 @@ asm("\n"
 	"\t.word _start_thumb\n"
 	".size _start, .-_start\n");
 
-__attribute__((naked, used))
+__attribute__((used))
 static void _start_thumb(void)
 #else
-__attribute__((naked))
 void _start(void)
 #endif
 {
