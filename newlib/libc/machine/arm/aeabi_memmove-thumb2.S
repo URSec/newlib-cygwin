@@ -34,7 +34,12 @@
 	ASM_ALIAS __aeabi_memmove8 __aeabi_memmove
 __aeabi_memmove:
 	cmp	r0, r1
+#ifdef SILHOUETTE
+	sub	sp, #4
+	strt	r4, [sp]
+#else
 	push	{r4}
+#endif
 	bls	3f
 	adds	r3, r1, r2
 	cmp	r0, r3
@@ -45,7 +50,12 @@ __aeabi_memmove:
 1:
 	ldrb	r4, [r3, #-1]!
 	cmp	r2, r3
+#ifdef SILHOUETTE
+	sub	r1, r1, #1
+	strbt	r4, [r1]
+#else
 	strb	r4, [r1, #-1]!
+#endif
 	bne	1b
 2:
 	pop	{r4}
@@ -58,7 +68,12 @@ __aeabi_memmove:
 4:
 	ldrb	r4, [r1], #1
 	cmp	r2, r1
+#ifdef SILHOUETTE
+	add	r3, r3, #1
+	strbt	r4, [r3]
+#else
 	strb	r4, [r3, #1]!
+#endif
 	bne	4b
 	pop	{r4}
 	bx	lr

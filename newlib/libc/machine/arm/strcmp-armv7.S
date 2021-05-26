@@ -138,12 +138,23 @@ def_fn	strcmp
 #endif
 	.cfi_sections .debug_frame
 	.cfi_startproc
+#ifdef SILHOUETTE
+	sub	sp, #16
+	strt	r4, [sp]
+	strt	r5, [sp, #4]
+#else
 	strd	r4, r5, [sp, #-16]!
+#endif
 	.cfi_def_cfa_offset 16
 	.cfi_offset 4, -16
 	.cfi_offset 5, -12
 	orr	tmp1, src1, src2
+#ifdef SILHOUETTE
+	strt	r6, [sp, #8]
+	strt	r7, [sp, #12]
+#else
 	strd	r6, r7, [sp, #8]
+#endif
 	.cfi_offset 6, -8
 	.cfi_offset 7, -4
 	mvn	const_m1, #0

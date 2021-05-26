@@ -33,7 +33,14 @@
 	ASM_ALIAS __aeabi_memset4 __aeabi_memset
 	ASM_ALIAS __aeabi_memset8 __aeabi_memset
 __aeabi_memset:
+#ifdef SILHOUETTE
+	sub	sp, #12
+	strt	r4, [sp]
+	strt	r5, [sp, #4]
+	strt	r6, [sp, #8]
+#else
 	push	{r4, r5, r6}
+#endif
 	lsls	r4, r0, #30
 	beq	10f
 	subs	r4, r1, #1
@@ -44,10 +51,24 @@ __aeabi_memset:
 	b	2f
 1:
 	subs	r1, r4, #1
+#ifdef SILHOUETTE
+	/*
+	 * Store hardening makes the oringinal CBZ out of range, so use
+	 * compare and branch.
+	 */
+	cmp	r4, #0
+	beq	9f
+#else
 	cbz	r4, 9f
+#endif
 	mov	r4, r1
 2:
+#ifdef SILHOUETTE
+	strbt	r5, [r3]
+	add	r3, r3, #1
+#else
 	strb	r5, [r3], #1
+#endif
 	lsls	r1, r3, #30
 	bne	1b
 3:
@@ -63,11 +84,20 @@ __aeabi_memset:
 4:
 	subs	r6, r6, #16
 	cmp	r6, #15
+#ifdef SILHOUETTE
+	sub	r1, r1, #16
+	strt	r5, [r1]
+	strt	r5, [r1, #4]
+	strt	r5, [r1, #8]
+	strt	r5, [r1, #12]
+	add	r1, r1, #32
+#else
 	str	r5, [r1, #-16]
 	str	r5, [r1, #-12]
 	str	r5, [r1, #-8]
 	str	r5, [r1, #-4]
 	add	r1, r1, #16
+#endif
 	bhi	4b
 	sub	r1, r4, #16
 	bic	r1, r1, #15
@@ -82,7 +112,12 @@ __aeabi_memset:
 6:
 	subs	r1, r1, #4
 	cmp	r1, #3
+#ifdef SILHOUETTE
+	strt	r5, [r6]
+	add	r6, r6, #4
+#else
 	str	r5, [r6], #4
+#endif
 	bhi	6b
 	subs	r1, r4, #4
 	bic	r1, r1, #3
@@ -94,7 +129,12 @@ __aeabi_memset:
 	uxtb	r2, r2
 	add	r4, r4, r3
 8:
+#ifdef SILHOUETTE
+	strbt	r2, [r3]
+	add	r3, r3, #1
+#else
 	strb	r2, [r3], #1
+#endif
 	cmp	r3, r4
 	bne	8b
 9:

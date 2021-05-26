@@ -312,7 +312,15 @@ memchr:
 	
 10:
 	@ We are aligned, we know we have at least 8 bytes to work with
+#ifdef SILHOUETTE
+	sub	sp, #16
+	strt	r4, [sp]
+	strt	r5, [sp, #4]
+	strt	r6, [sp, #8]
+	strt	r7, [sp, #12]
+#else
 	push	{r4,r5,r6,r7}
+#endif
 	orr	r1, r1, r1, lsl #8	@ expand the match word across all bytes
 	orr	r1, r1, r1, lsl #16
 	bic	r4, r2, #7	@ Number of double words to work with * 8

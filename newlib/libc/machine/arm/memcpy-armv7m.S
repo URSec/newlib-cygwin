@@ -95,7 +95,12 @@ memcpy:
 	   function body.  */
 	mov	ip, r0
 #else
+#ifdef SILHOUETTE
+	sub	sp, #4
+	strt	r0, [sp]
+#else
 	push	{r0}
+#endif
 #endif
 	orr	r3, r1, r0
 	ands	r3, r3, #3
@@ -111,11 +116,20 @@ memcpy:
 	BEGIN_UNROLL_BIG_BLOCK
 #ifdef __ARM_ARCH_7EM__
 	ldr	r3, [r1], #4
+#ifdef SILHOUETTE
+	strt	r3, [r0]
+	add	r0, r0, #4
+#else
 	str	r3, [r0], #4
+#endif
 	END_UNROLL
 #else /* __ARM_ARCH_7M__ */
 	ldr	r3, [r1, \offset]
+#ifdef SILHOUETTE
+	strt	r3, [r0, \offset]
+#else
 	str	r3, [r0, \offset]
+#endif
 	END_UNROLL
 	adds	r0, __OPT_BIG_BLOCK_SIZE
 	adds	r1, __OPT_BIG_BLOCK_SIZE
@@ -133,11 +147,20 @@ memcpy:
 	BEGIN_UNROLL_MID_BLOCK
 #ifdef __ARM_ARCH_7EM__
 	ldr	r3, [r1], #4
+#ifdef SILHOUETTE
+	strt	r3, [r0]
+	add	r0, r0, #4
+#else
 	str	r3, [r0], #4
+#endif
 	END_UNROLL
 #else /* __ARM_ARCH_7M__ */
 	ldr	r3, [r1, \offset]
+#ifdef SILHOUETTE
+	strt	r3, [r0, \offset]
+#else
 	str	r3, [r0, \offset]
+#endif
 	END_UNROLL
 	adds    r0, __OPT_MID_BLOCK_SIZE
 	adds    r1, __OPT_MID_BLOCK_SIZE
@@ -153,7 +176,12 @@ memcpy:
 	.align 2
 .Lcopy_word_by_word_loop:
 	ldr	r3, [r1], #4
+#ifdef SILHOUETTE
+	strt	r3, [r0]
+	add	r0, r0, #4
+#else
 	str	r3, [r0], #4
+#endif
 	subs	r2, #4
 	bhs	.Lcopy_word_by_word_loop
 
@@ -162,19 +190,40 @@ memcpy:
 	beq	.Ldone
 
 	lsls	r2, r2, #31
+#ifdef SILHOUETTE
+	ittt ne
+#else
 	itt ne
+#endif
 	ldrbne  r3, [r1], #1
+#ifdef SILHOUETTE
+	strbtne	r3, [r0]
+	addne	r0, r0, #1
+#else
 	strbne  r3, [r0], #1
+#endif
 
 	bcc	.Ldone
 #ifdef __ARM_FEATURE_UNALIGNED
 	ldrh	r3, [r1]
+#ifdef SILHOUETTE
+	strht	r3, [r0]
+#else
 	strh	r3, [r0]
+#endif
 #else
 	ldrb	r3, [r1]
+#ifdef SILHOUETTE
+	strbt	r3, [r0]
+#else
 	strb	r3, [r0]
+#endif
 	ldrb	r3, [r1, #1]
+#ifdef SILHOUETTE
+	strbt	r3, [r0, #1]
+#else
 	strb	r3, [r0, #1]
+#endif
 #endif /* __ARM_FEATURE_UNALIGNED */
 
 .Ldone:
@@ -222,21 +271,45 @@ memcpy:
 	subs	r2, r3
 
 	lsls    r3, r3, #31
+#ifdef SILHOUETTE
+	ittt ne
+#else
 	itt ne
+#endif
 	ldrbne  r3, [r1], #1
+#ifdef SILHOUETTE
+	strbtne	r3, [r0]
+	addne	r0, r0, #1
+#else
 	strbne  r3, [r0], #1
+#endif
 
 	bcc .Ldst_aligned
 
 #ifdef __ARM_FEATURE_UNALIGNED
 	ldrh    r3, [r1], #2
+#ifdef SILHOUETTE
+	strht	r3, [r0]
+	add	r0, r0, #2
+#else
 	strh    r3, [r0], #2
+#endif
 	b	.Ldst_aligned
 #else
 	ldrb    r3, [r1], #1
+#ifdef SILHOUETTE
+	strbt	r3, [r0]
+	add	r0, r0, #1
+#else
 	strb    r3, [r0], #1
+#endif
 	ldrb    r3, [r1], #1
+#ifdef SILHOUETTE
+	strbt	r3, [r0]
+	add	r0, r0, #1
+#else
 	strb    r3, [r0], #1
+#endif
 	/* Now that dst is aligned */
 .Ldst_aligned:
 	/* if r1 is aligned now, it means r0/r1 has the same misalignment,
@@ -246,7 +319,13 @@ memcpy:
 
 	/* dst is aligned, but src isn't.  Misaligned copy.  */
 
+#ifdef SILHOUETTE
+	sub	sp, #8
+	strt	r4, [sp]
+	strt	r5, [sp, #4]
+#else
 	push	{r4, r5}
+#endif
 	subs	r2, #4
 
 	/* Backward r1 by misaligned bytes, to make r1 aligned.
@@ -277,7 +356,12 @@ memcpy:
 	lsls	r5, r3, 32-\shift
 #endif
 	orr	r4, r4, r5
+#ifdef SILHOUETTE
+	strt	r4, [r0]
+	add	r0, r0, #4
+#else
 	str	r4, [r0], #4
+#endif
 	mov	r4, r3
 	subs	r2, #4
 	bhs	1b
@@ -309,15 +393,32 @@ memcpy:
 .Lbyte_copy_loop:
 	subs    r2, #1
 	ldrb    r3, [r1], #1
+#ifdef SILHOUETTE
+	strbt	r3, [r0]
+	add	r0, r0, #1
+#else
 	strb    r3, [r0], #1
+#endif
 	bhs	.Lbyte_copy_loop
 
 	ldrb	r3, [r1]
+#ifdef SILHOUETTE
+	strbt	r3, [r0]
+#else
 	strb	r3, [r0]
+#endif
 	ldrb	r3, [r1, #1]
+#ifdef SILHOUETTE
+	strbt	r3, [r0, #1]
+#else
 	strb	r3, [r0, #1]
+#endif
 	ldrb	r3, [r1, #2]
+#ifdef SILHOUETTE
+	strbt	r3, [r0, #2]
+#else
 	strb	r3, [r0, #2]
+#endif
 
 #ifdef __ARM_FEATURE_UNALIGNED
 	mov	r0, ip

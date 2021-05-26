@@ -101,7 +101,13 @@
 
 def_fn	strlen p2align=6
 	pld	[srcin, #0]
+#ifdef SILHOUETTE
+	sub	sp, #8
+	strt	r4, [sp]
+	strt	r5, [sp, #4]
+#else
 	strd	r4, r5, [sp, #-8]!
+#endif
 	bic	src, srcin, #7
 	mvn	const_m1, #0
 	ands	tmp1, srcin, #7		/* (8 - bytes) to alignment.  */
