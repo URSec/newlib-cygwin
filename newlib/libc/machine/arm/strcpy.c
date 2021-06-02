@@ -56,21 +56,37 @@ strcpy (char* dst, const char* src)
        "bne	3f\n"
   "5:\n\t"
 #ifndef __thumb2__
+#ifdef SILHOUETTE
+       "sub	sp, #4\n\t"
+       "strt	r5, [sp]\n\t"
+#else
        "str	r5, [sp, #-4]!\n\t"
+#endif
        "mov	r5, #0x01\n\t"
        "orr	r5, r5, r5, lsl #8\n\t"
        "orr	r5, r5, r5, lsl #16\n\t"
 #endif
 
+#ifdef SILHOUETTE
+       "sub	sp, #4\n\t"
+       "strt	r4, [sp]\n\t"
+#else
        "str	r4, [sp, #-4]!\n\t"
+#endif
        "tst	r1, #4\n\t"
        "ldr	r3, [r1], #4\n\t"
        "beq	2f\n\t"
        "sub	r2, r3, "magic1(r5)"\n\t"
        "bics	r2, r2, r3\n\t"
        "tst	r2, "magic2(r5)"\n\t"
+#ifdef SILHOUETTE
+       "ittt	eq\n\t"
+       "strteq	r3, [ip]\n\t"
+       "addeq	ip, ip, #4\n\t"
+#else
        "itt	eq\n\t"
        "streq	r3, [ip], #4\n\t"
+#endif
        "ldreq	r3, [r1], #4\n"
        "bne	1f\n\t"
        /* Inner loop.  We now know that r1 is 64-bit aligned, so we
@@ -87,19 +103,36 @@ strcpy (char* dst, const char* src)
        "tst	r2, "magic2(r5)"\n\t"
        "sub	r2, r4, "magic1(r5)"\n\t"
        "bne	1f\n\t"
+#ifdef SILHOUETTE
+       "strt	r3, [ip]\n\t"
+       "add	ip, ip, #4\n\t"
+#else
        "str	r3, [ip], #4\n\t"
+#endif
        "bics	r2, r2, r4\n\t"
        "tst	r2, "magic2(r5)"\n\t"
+#ifdef SILHOUETTE
+       "ittt	eq\n\t"
+       "ldreq	r3, [r1], #4\n\t"
+       "strteq	r4, [ip]\n\t"
+       "addeq	ip, ip, #4\n\t"
+#else
        "itt	eq\n\t"
        "ldreq	r3, [r1], #4\n\t"
        "streq	r4, [ip], #4\n\t"
+#endif
        "beq	2b\n\t"
        "mov	r3, r4\n"
   "1:\n\t"
 #ifdef __ARMEB__
        "rors	r3, r3, #24\n\t"
 #endif
+#ifdef SILHOUETTE
+       "strbt	r3, [ip]\n\t"
+       "add	ip, ip, #1\n\t"
+#else
        "strb	r3, [ip], #1\n\t"
+#endif
        "tst	r3, #0xff\n\t"
 #ifdef __ARMEL__
        "ror	r3, r3, #8\n\t"
@@ -117,7 +150,12 @@ strcpy (char* dst, const char* src)
        "tst	r1, #1\n\t"
        "beq	1f\n\t"
        "ldrb	r2, [r1], #1\n\t"
+#ifdef SILHOUETTE
+       "strbt	r2, [ip]\n\t"
+       "add	ip, ip, #1\n\t"
+#else
        "strb	r2, [ip], #1\n\t"
+#endif
        "cmp	r2, #0\n\t"
        "it	eq\n"
        "bxeq	lr\n"
@@ -127,16 +165,32 @@ strcpy (char* dst, const char* src)
        "ldrh	r2, [r1], #2\n\t"
 #ifdef __ARMEB__
        "tst	r2, #0xff00\n\t"
+#ifdef SILHOUETTE
+       "ittee	ne\n\t"
+       "strhtne	r2, [ip], #2\n\t"
+       "addne	ip, ip, #2\n\t"
+       "lsreq	r2, r2, #8\n\t"
+       "strbteq	r2, [ip]\n\t"
+       "it	ne\n\t"
+#else
        "iteet	ne\n\t"
        "strhne	r2, [ip], #2\n\t"
        "lsreq	r2, r2, #8\n\t"
        "strbeq	r2, [ip]\n\t"
+#endif
        "tstne	r2, #0xff\n\t"
 #else
        "tst	r2, #0xff\n\t"
+#ifdef SILHOUETTE
+       "ittet	ne\n\t"
+       "strhtne	r2, [ip]\n\t"
+       "addne	ip, ip, #2\n\t"
+       "strbteq	r2, [ip]\n\t"
+#else
        "itet	ne\n\t"
        "strhne	r2, [ip], #2\n\t"
        "strbeq	r2, [ip]\n\t"
+#endif
        "tstne	r2, #0xff00\n\t"
 #endif
        "bne	5b\n\t"
@@ -146,7 +200,12 @@ strcpy (char* dst, const char* src)
 	  byte copying.  */
   "4:\n\t"
        "ldrb	r2, [r1], #1\n\t"
+#ifdef SILHOUETTE
+       "strbt	r2, [ip]\n\t"
+       "add	ip, ip, #1\n\t"
+#else
        "strb	r2, [ip], #1\n\t"
+#endif
        "cmp	r2, #0\n\t"
        "bne	4b\n\t"
        "bx	lr\n\t"
