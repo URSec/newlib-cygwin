@@ -56,12 +56,7 @@ strcpy (char* dst, const char* src)
        "bne	3f\n"
   "5:\n\t"
 #ifndef __thumb2__
-#ifdef SILHOUETTE
-       "sub	sp, #4\n\t"
-       "strt	r5, [sp]\n\t"
-#else
        "str	r5, [sp, #-4]!\n\t"
-#endif
        "mov	r5, #0x01\n\t"
        "orr	r5, r5, r5, lsl #8\n\t"
        "orr	r5, r5, r5, lsl #16\n\t"
@@ -167,7 +162,7 @@ strcpy (char* dst, const char* src)
        "tst	r2, #0xff00\n\t"
 #ifdef SILHOUETTE
        "ittee	ne\n\t"
-       "strhtne	r2, [ip], #2\n\t"
+       "strhtne	r2, [ip]\n\t"
        "addne	ip, ip, #2\n\t"
        "lsreq	r2, r2, #8\n\t"
        "strbteq	r2, [ip]\n\t"
@@ -214,7 +209,12 @@ strcpy (char* dst, const char* src)
        "mov	r3, r0\n\t"
   "1:\n\t"
        "ldrb	r2, [r1], #1\n\t"
+#ifdef SILHOUETTE
+       "strbt	r2, [r3]\n\t"
+       "add	r3, r3, #1\n\t"
+#else
        "strb	r2, [r3], #1\n\t"
+#endif
        "cmp	r2, #0\n\t"
        "bne	1b\n\t"
        "bx	lr\n\t"

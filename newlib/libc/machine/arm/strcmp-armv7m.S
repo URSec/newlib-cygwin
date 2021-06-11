@@ -217,7 +217,12 @@ def_fn strcmp
 	bx	lr
 
 2:
+#ifdef SILHOUETTE
+	sub	sp, #4
+	strt	r5, [sp]
+#else
 	stmfd	sp!, {r5}
+#endif
 	.cfi_def_cfa_offset 4
 	.cfi_offset 5, -4
 

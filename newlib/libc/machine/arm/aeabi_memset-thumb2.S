@@ -53,7 +53,7 @@ __aeabi_memset:
 	subs	r1, r4, #1
 #ifdef SILHOUETTE
 	/*
-	 * Store hardening makes the oringinal CBZ out of range, so use
+	 * Store hardening makes the original CBZ out of range, so use
 	 * compare and branch.
 	 */
 	cmp	r4, #0
